@@ -4,17 +4,20 @@ set -o nounset
 set -o pipefail
 
 source state/env.sh
-true ${ESX_USERNAME:?"!"}
-true ${ESX_PASSWORD:?"!"}
-true ${ESX_HOST:?"!"}
-true ${ESX_THUMBPRINT:?"!"}
-true ${ESX_DATASTORE:?"!"}
-true ${ESX_NETWORK:?"!"}
-true ${VM_NAME:?"!"}
-true ${VM_PASSWORD:?"!"}
-true ${VM_AUTHORIZED_KEY:?"!"}
-true ${VM_IP:?"!"}
-true ${VM_NETMASK:?"!"}
+: ${ESX_USERNAME:?"!"}
+: ${ESX_PASSWORD:?"!"}
+: ${ESX_HOST:?"!"}
+: ${ESX_THUMBPRINT:?"!"}
+: ${ESX_DATASTORE:?"!"}
+: ${ESX_NETWORK:?"!"}
+: ${VM_NAME:?"!"}
+: ${VM_PASSWORD:?"!"}
+: ${VM_AUTHORIZED_KEY:?"!"}
+: ${VM_IP:?"!"}
+: ${VM_NETMASK:?"!"}
+: ${CPUS:?"!"}
+: ${MEMORY_MB:?"!"}
+: ${DISK_SIZE:?"!"}
 
 mkdir -p bin
 if ! [ -f bin/govc ]; then
@@ -70,10 +73,10 @@ bin/govc import.ova \
   bin/image.ova \
 ;
 bin/govc import.vmdk -force=true bin/cloud-init.vmdk /$VM_NAME/
-bin/govc vm.change -vm $VM_NAME -c 6 -m 130000 -nested-hv-enabled=true -sync-time-with-host=true
+bin/govc vm.change -vm $VM_NAME -c $CPUS -m $MEMORY_MB -nested-hv-enabled=true -sync-time-with-host=true
 
 bin/govc vm.disk.attach -disk /$VM_NAME/cloud-init.vmdk -link=false
-bin/govc vm.disk.change -vm $VM_NAME -disk.key 2000 -size 550G
+bin/govc vm.disk.change -vm $VM_NAME -disk.key 2000 -size $DISK_SIZE
 bin/govc device.remove floppy-8000 
 
 bin/govc vm.network.add -vm $VM_NAME -net "VM Network" -net.adapter vmxnet3
