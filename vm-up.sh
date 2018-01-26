@@ -40,7 +40,7 @@ export GOVC_NETWORK=$ESX_NETWORK
 export GOVC_VM=$VM_NAME
 #export GOVC_RESOURCE_POOL='*/Resources'
 
-cat > meta-data <<EOF
+cat > bin/meta-data <<EOF
 local-hostname: localhost
 network-interfaces: |
   auto lo
@@ -55,7 +55,7 @@ network-interfaces: |
     netmask $VM_NETMASK
 EOF
 
-cat > user-data <<EOF
+cat > bin/user-data <<EOF
 #cloud-config
 password: $VM_PASSWORD
 chpasswd: { expire: False }
@@ -64,7 +64,7 @@ ssh_authorized_keys:
   - $VM_AUTHORIZED_KEY
 EOF
 
-xorrisofs -volid cidata -joliet -rock user-data meta-data > bin/cloud-init.iso
+xorrisofs -volid cidata -joliet -rock bin/user-data bin/meta-data > bin/cloud-init.iso
 qemu-img convert -O vmdk bin/cloud-init.iso bin/cloud-init.vmdk
 
 bin/govc import.ova \
