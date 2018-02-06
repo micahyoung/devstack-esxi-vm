@@ -122,7 +122,11 @@ qemu-img convert -O vmdk bin/cloud-init.iso bin/cloud-init.vmdk
 
 bin/govc import.ova \
   -name $VM_NAME \
-  -options <(bin/govc import.spec bin/image.ova | jq 'del(.Deployment)') \
+  -options <(
+      bin/govc import.spec bin/image.ova \
+        | jq 'del(.Deployment)' \
+        | jq 'del(.NetworkMapping)' \
+    ) \
   bin/image.ova \
 ;
 bin/govc import.vmdk -force=true bin/cloud-init.vmdk /$VM_NAME/
